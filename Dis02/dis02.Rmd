@@ -1,0 +1,103 @@
+---
+title: "S20 STA 100 A05 Discussion 02"
+author: "Yishan Huang"
+date: "2020/04/07"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+Discussion Time: Tuesday 12:10 -- 1:00 pm.
+
+Email Address: yishuang@ucdavis.edu
+
+Zoom: https://ucdstats.zoom.us/j/516752243?pwd=WnhZY3E2SFNxZWhiRHRPcWFrV2hZZz09
+
+Office Hour: Thursday 12:00 -- 1:00 pm.
+
+## Main points in this notes
+
+- Install packages
+- Example of dataset, build-in dataset in R
+- Dataframe
+- Choose rows and columns from a dataframe, subsampling
+- Histograms
+- Put multiple plots in a single figure
+- Add a histogram on an existing plot
+- Set range of $x$ and $y$ coordinate in plots
+- Main title, labels, legends
+- Draw vertical or horizontal lines, or lines with given slopes and intercepts
+- Frequency table for 2 categorical variables
+- Mosaic plots
+
+## How to install a package
+
+```{r}
+# install.packages("ggplot2")
+library(ggplot2)
+```
+
+## Data
+
+Today we are going to talk about data manipulation process, and deal with some real dataset. We will use one of the most popular build-in dataset 'mtcars' as an example. Let's first have a look on the dataset: 
+
+```{r}
+mtcars_data <- mtcars
+mtcars_data
+# ?mtcars
+```
+
+## Subset the data
+
+The type of this data is 'dataframe'. Typically, most of the dataset in R are storaged in the format of dataframe. So it is essential to know fundamental usages of dataframe. For example if we need to take some rows or columns from the whole dataset, we could do the following:
+
+```{r}
+mtcars_data[1, ]  # the first row
+mtcars_data[, c(2, 3)]  # the second and third column
+mtcars_data[, c("cyl", "disp")]
+mtcars_data$mpg
+mtcars_data[3, 5]  # one specific value
+```
+
+Let's do it fancier:
+
+```{r}
+mtcars_sub1 <- mtcars_data[mtcars_data$cyl == 6, ]
+mtcars_sub2 <- mtcars_data[mtcars_data$cyl == 8, ]
+```
+
+## Have a look at the histogram
+
+```{r}
+par(mfrow = c(1, 2))
+hist1 <- hist(mtcars_sub1$mpg, breaks = 17:22, xlab = "mpg", main = "Histogram of mpg for 6-cylinder cars")
+hist2 <- hist(mtcars_sub2$mpg, breaks = 10:20, xlab = "mpg", main = "Histogram of mpg for 8-cylinder cars")
+
+library(scales)
+library(RColorBrewer)
+pal <- brewer.pal(8, 'Dark2')
+par(mfrow = c(1, 1))
+plot(hist1, col = alpha(pal[1], 0.5), xlim = c(10, 22), ylim = c(0, 4),
+     xlab = "mpg", main = "Histogram of mpg")  # transparency = 0.5
+plot(hist2, col = alpha(pal[2], 0.5), add = T)
+legend("topright", legend = c("6 cylinders", "8 cylinders"), fill = alpha(pal[1:2], 0.5))
+
+abline(v = c(mean(mtcars_sub1$mpg), mean(mtcars_sub2$mpg)), col = pal[3], lwd = 5)
+abline(v = c(median(mtcars_sub1$mpg), median(mtcars_sub2$mpg)), col = pal[4], lty = 2, lwd = 5)
+
+c(mean = mean(mtcars_sub1$mpg), median = median(mtcars_sub1$mpg))
+c(mean = mean(mtcars_sub2$mpg), median = median(mtcars_sub2$mpg))
+```
+
+## Create mosaic plots
+
+For dataset with two categorical variables, we can create the mosaic plot: 
+
+```{r}
+cyl_am_table <- table(mtcars_data[, c("cyl", "am")])
+colnames(cyl_am_table) <- c("automatic", "manual")
+mosaicplot(cyl_am_table, main = "Mosaic plot for cylindar and transmission", col = pal[1:2])
+```
+
+
+
