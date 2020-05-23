@@ -1,0 +1,59 @@
+---
+title: "S20 STA 100 A05 Discussion 08"
+author: "Yishan Huang"
+date: "2020/05/19"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+Discussion Time: Tuesday 12:10 -- 1:00 pm.
+
+Email Address: yishuang@ucdavis.edu
+
+Zoom: https://ucdstats.zoom.us/j/516752243?pwd=WnhZY3E2SFNxZWhiRHRPcWFrV2hZZz09
+
+Office Hour: Thursday 12:00 -- 1:00 pm.
+
+## Another example of Fisher's exact test[^1]
+
+Rosen and Jerdee (1974) conducted several experiments, using as subjects male bank supervisors attending a management institute. As part of their training, the supervisors had to make decisions on items in an in-basket. The investigators embedded their experimental materials in the contents of the in-baskets. In one experiment, the supervisors were given a personnel file and had to decide whether to promote the employee or to hold the file and interview additional candidates. By random selection, 24 of the supervisors examined a file labeled as being that of a male employee and 24 examined a file labeled as being that of a female employee; the files were otherwise identical. The results are summarized in the following table:
+
+[^1]: John A. Rice. Mathematical Statistics and Data Analysis, Third Edition, Section 13.2.
+
+```{r}
+library(knitr)
+SupervisorTable <- matrix(c(21, 3, 14, 10), 2, 2)
+rownames(SupervisorTable) <- c("Promote", "Hold File")
+colnames(SupervisorTable) <- c("Male", "Female")
+kable(SupervisorTable)
+```
+
+From the results, it appears that there is a sex bias -- 21 of 24 males were promoted, but only 14 of 24 females were. But someone who was arguing against the presence of sex bias could claim that the results occurred by chance; that is, even if there were no bias and the supervisors were completely indifferent to sex, discrepancies like those observed could occur with fairly large probability by chance alone. To rephrase this argument, the claim is that 35 of the 48 supervisors chose to promote the employee and 13 chose not to, and that 21 of the 35 promotions were of a male employee merely because of the random assignment of supervisors to male and female files. The strength of the argument against sex bias must be assessed by a calculation of probability. If it is likely that the randomization could result in such an imbalance, the argument is difficult to refute; however, if only a small proportion of all possible randomizations would give such an imbalance, the argument has less force.
+
+**We take as the null hypothesis that there is no sex bias (the decision of holding or promoting is independent to sex of employee) and that any differences observed are due to the randomization.** Consider the count $X_{11}$, the number of males who are promoted. Under the null hypothesis, the distribution of $X_{11}$ is that of the number of successes in 24 draws without replacement from a population of 35 successes and 13 failures; that is, the distribution of $X_{11}$ induced by the randomization is hypergeometric. The probability that $X_{11} = x$ is
+\[P(X_{11} = x) = \frac{\displaystyle {35 \choose x}\cdot {13 \choose 24 - x}}{\displaystyle {48 \choose 24}}.\]
+
+```{r}
+x <- 11:24
+Pr_x <- round(dhyper(x, 35, 13, 24), digits = 4)
+kable(cbind(x, Pr_x))
+```
+
+Let's perform a one-sided Fisher's exact test at significance level $\alpha = 0.05$. **(That is, our alternative is that 'promotion' and 'male' are positively correlated.)** We calculate our $p$-value as the following.
+
+```{r}
+sum(dhyper(21:24, 35, 13, 24))
+```
+
+The $p$-value is smaller than $\alpha$, which means that we should reject the null hypothesis.
+
+We can also perform the test using another command.
+
+```{r}
+fisher.test(SupervisorTable, alternative = "greater")
+fisher.test(SupervisorTable)
+```
+
+We yield the same $p$-value.
