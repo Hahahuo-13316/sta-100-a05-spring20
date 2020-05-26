@@ -1,0 +1,75 @@
+---
+title: "S20 STA 100 A05 Discussion 09"
+author: "Yishan Huang"
+date: "2020/05/26"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(magrittr)
+library(RColorBrewer)
+pal <- brewer.pal(8, 'Dark2')
+library(psych)
+library(knitr)
+options(knitr.kable.NA = '')
+```
+
+Discussion Time: Tuesday 12:10 -- 1:00 pm.
+
+Email Address: yishuang@ucdavis.edu
+
+Zoom: https://ucdstats.zoom.us/j/516752243?pwd=WnhZY3E2SFNxZWhiRHRPcWFrV2hZZz09
+
+Office Hour: Thursday 12:00 -- 1:00 pm.
+
+## Another example of ANOVA[^1]
+
+Description: Infarct volumes measured histologically after experimental cerebral artery occlusion in the mouse. Treatments: Vehicle (Control), Compound X, Compound Y.
+
+[^1]: P. Schlattman and U. Dirnagl (2010). "Statistics in Experimental Cerebrovascular Research: Comparison of More then Two Groups with a Continuous Outcome Variable," Journal of Cerebral Blood Flow & Metabolism, Vol. 30, pp. 1558-1563. (Data: http://users.stat.ufl.edu/~winner/data/infarct1.dat)
+
+```{r}
+Infarct.data <- read.table("infarct1.dat")
+colnames(Infarct.data) <- c("treatment", "volume")
+boxplot(volume ~ treatment, data = Infarct.data, col = pal[1:3]) # col = "lightgreen" for a single color
+Infarct.data
+```
+
+```{r}
+# Fitting ANOVA model
+FittedGroupMeans <- aov(volume ~ factor(treatment), data = Infarct.data)
+# Test the null that all the means are equal
+kable(anova(FittedGroupMeans), digits = 14)
+# Simutaneous confidencen interval for pairwise difference
+# mu1 - mu2, mu1 - mu3, mu2 - mu3
+TukeysProcedure <- TukeyHSD(FittedGroupMeans)
+TukeysProcedure
+plot(TukeysProcedure)
+```
+
+## Data for Lab Assignment 7
+
+```{r}
+AnesthesiaVentilation.data <- read.csv("http://www.stat.ucdavis.edu/~affarris/AnesthesiaVentilation.csv")
+boxplot(folate ~ ventilation, data = AnesthesiaVentilation.data, col = pal[1:3])
+AnesthesiaVentilation.data
+```
+
+```{r}
+FittedGroupMeans <- aov(folate ~ ventilation, data = AnesthesiaVentilation.data)
+kable(anova(FittedGroupMeans), digits = 14)
+TukeysProcedure <- TukeyHSD(FittedGroupMeans)
+TukeysProcedure
+```
+
+```{r}
+# Run the whole trunk: ctrl+shift+enter (ctrl = command)
+# Run a single line: ctrl+enter
+
+par(mar = c(2, 11, 2, 1)) # bottom, left, top, right
+plot(TukeysProcedure, las = 1) # Search on Google: r plot las
+```
